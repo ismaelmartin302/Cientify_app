@@ -54,7 +54,8 @@
       this.draw = function() {
         ctx.save();
         ctx.globalAlpha = this.opacity;
-        ctx.drawImage(image, this.x, this.y, this.size, this.size);
+        // Ajuste para centrar la imagen en el mouse/touch
+        ctx.drawImage(image, this.x - this.size / 2, this.y - this.size / 2, this.size, this.size);
         ctx.restore();
       };
     }
