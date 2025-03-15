@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Particle Image Effect</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #f0f0f0;
+      height: 100vh;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particleCanvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    const image = new Image();
+    image.src = 'eliceo_consulting.png'; // Asegúrate de que sea de alta calidad
+
+    // Constructor de partícula
+    function Particle(x, y) {
+      this.x = x;
+      this.y = y;
+      this.size = Math.random() * 240 + 160; // Tamaño de partícula más grande
+      this.speedX = Math.random() * 4 - 2;
+      this.speedY = Math.random() * 4 - 2;
+      this.opacity = 1;
+      
+      this.update = function() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.opacity -= 0.01; // Partículas más duraderas
+        if (this.opacity <= 0) {
+          const index = particles.indexOf(this);
+          if (index > -1) particles.splice(index, 1);
+        }
+      };
+
+      this.draw = function() {
+        ctx.save();
+        ctx.globalAlpha = this.opacity;
+        ctx.drawImage(image, this.x, this.y, this.size, this.size);
+        ctx.restore();
+      };
+    }
+
+    // Crea partículas en la posición del evento
+    function createParticle(x, y) {
+        particles.push(new Particle(x, y));
+    }
+
+    // Manejar los eventos del ratón y el toque
+    function handlePointerDown(event) {
+      const x = event.clientX || event.touches[0].clientX;
+      const y = event.clientY || event.touches[0].clientY;
+      createParticle(x, y);
+      canvas.addEventListener('mousemove', handlePointerMove);
+      canvas.addEventListener('touchmove', handlePointerMove);
+    }
+
+    function handlePointerMove(event) {
+      const x = event.clientX || event.touches[0].clientX;
+      const y = event.clientY || event.touches[0].clientY;
+      createParticle(x, y);
+    }
+
+    function handlePointerUp() {
+      canvas.removeEventListener('mousemove', handlePointerMove);
+      canvas.removeEventListener('touchmove', handlePointerMove);
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(particle => {
+        particle.update();
+        particle.draw();
+      });
+      requestAnimationFrame(animate);
+    }
+
+    // Ajuste del tamaño del canvas en cambio de ventana
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    // Asignación de eventos para ratón y toque
+    canvas.addEventListener('mousedown', handlePointerDown);
+    canvas.addEventListener('touchstart', handlePointerDown);
+    canvas.addEventListener('mouseup', handlePointerUp);
+    canvas.addEventListener('touchend', handlePointerUp);
+
+    // Espera a que la imagen se cargue para iniciar la animación
+    image.onload = function() {
+      animate();
+    };
+  </script>
+</body>
+</html>
